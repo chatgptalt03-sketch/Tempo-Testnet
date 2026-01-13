@@ -1,0 +1,70 @@
+[
+  {
+    "type": "function",
+    "name": "createPolicy",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      { "name": "owner", "type": "address" },
+      { "name": "whitelist", "type": "address[]" },
+      { "name": "blacklist", "type": "address[]" },
+      { "name": "timestamp", "type": "uint256" }
+    ],
+    "outputs": [{ "name": "id", "type": "uint256" }]
+  },
+  {
+    "type": "function",
+    "name": "modifyPolicyWhitelist",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      { "name": "id", "type": "uint256" },
+      { "name": "whitelist", "type": "address[]" },
+      { "name": "add", "type": "bool" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "modifyPolicyBlacklist",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      { "name": "id", "type": "uint256" },
+      { "name": "blacklist", "type": "address[]" },
+      { "name": "add", "type": "bool" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "isAuthorized",
+    "stateMutability": "view",
+    "inputs": [
+      { "name": "from", "type": "address" },
+      { "name": "to", "type": "address" },
+      { "name": "id", "type": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "bool" }]
+  },
+  {
+    "type": "function",
+    "name": "policyExists",
+    "stateMutability": "view",
+    "inputs": [{ "name": "id", "type": "uint256" }],
+    "outputs": [{ "name": "", "type": "bool" }]
+  },
+  {
+    "type": "function",
+    "name": "policyData",
+    "stateMutability": "view",
+    "inputs": [{ "name": "id", "type": "uint256" }],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          { "name": "owner", "type": "address" },
+          { "name": "timestamp", "type": "uint256" }
+        ]
+      }
+    ]
+  }
+]

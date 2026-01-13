@@ -1,0 +1,33 @@
+import type { ReactNode } from 'react';
+import { useEffect } from 'react';
+import { Header } from './Header';
+import { Sidebar } from './Sidebar';
+import { Footer } from './Footer';
+import { useAppStore } from '@/store';
+
+export function MainLayout({ children }: { children: ReactNode }) {
+  const sidebarOpen = useAppStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useAppStore((state) => state.setSidebarOpen);
+  const theme = useAppStore((state) => state.theme);
+
+  useEffect(() => {
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 1024px)').matches) return;
+    setSidebarOpen(false);
+  }, [setSidebarOpen]);
+
+  return (
+    <div className="min-h-screen">
+      <Header />
+      <div className="mx-auto flex w-full max-w-6xl px-4">
+        <Sidebar isOpen={sidebarOpen} />
+        <main className="min-h-[calc(100vh-4rem)] flex-1 p-4 sm:p-6 lg:ml-64">{children}</main>
+      </div>
+      <Footer />
+    </div>
+  );
+}

@@ -1,0 +1,47 @@
+[
+	{
+		"type": "function",
+		"name": "createToken",
+		"stateMutability": "nonpayable",
+		"inputs": [
+			{ "name": "name", "type": "string" },
+			{ "name": "symbol", "type": "string" },
+			{ "name": "currency", "type": "string" },
+			{ "name": "quoteToken", "type": "address" },
+			{ "name": "admin", "type": "address" },
+			{ "name": "salt", "type": "bytes32" }
+		],
+		"outputs": [{ "name": "token", "type": "address" }]
+	},
+	{
+		"type": "function",
+		"name": "isTIP20",
+		"stateMutability": "view",
+		"inputs": [{ "name": "token", "type": "address" }],
+		"outputs": [{ "name": "", "type": "bool" }]
+	},
+	{
+		"type": "function",
+		"name": "getTokenAddress",
+		"stateMutability": "pure",
+		"inputs": [
+			{ "name": "sender", "type": "address" },
+			{ "name": "salt", "type": "bytes32" }
+		],
+		"outputs": [{ "name": "token", "type": "address" }]
+	},
+	{
+		"type": "event",
+		"name": "TokenCreated",
+		"inputs": [
+			{ "name": "token", "type": "address", "indexed": true },
+			{ "name": "name", "type": "string", "indexed": false },
+			{ "name": "symbol", "type": "string", "indexed": false },
+			{ "name": "currency", "type": "string", "indexed": false },
+			{ "name": "quoteToken", "type": "address", "indexed": false },
+			{ "name": "admin", "type": "address", "indexed": false },
+			{ "name": "salt", "type": "bytes32", "indexed": false }
+		],
+		"anonymous": false
+	}
+]

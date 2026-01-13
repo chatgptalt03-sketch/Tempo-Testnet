@@ -1,0 +1,72 @@
+[
+  { "type": "function", "name": "name", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "string" }] },
+  { "type": "function", "name": "symbol", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "string" }] },
+  { "type": "function", "name": "decimals", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "uint8" }] },
+  { "type": "function", "name": "totalSupply", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "uint256" }] },
+  { "type": "function", "name": "balanceOf", "stateMutability": "view", "inputs": [{ "name": "account", "type": "address" }], "outputs": [{ "name": "", "type": "uint256" }] },
+  { "type": "function", "name": "allowance", "stateMutability": "view", "inputs": [{ "name": "owner", "type": "address" }, { "name": "spender", "type": "address" }], "outputs": [{ "name": "", "type": "uint256" }] },
+  { "type": "function", "name": "approve", "stateMutability": "nonpayable", "inputs": [{ "name": "spender", "type": "address" }, { "name": "amount", "type": "uint256" }], "outputs": [{ "name": "", "type": "bool" }] },
+  { "type": "function", "name": "transfer", "stateMutability": "nonpayable", "inputs": [{ "name": "to", "type": "address" }, { "name": "amount", "type": "uint256" }], "outputs": [{ "name": "", "type": "bool" }] },
+  { "type": "function", "name": "transferFrom", "stateMutability": "nonpayable", "inputs": [{ "name": "from", "type": "address" }, { "name": "to", "type": "address" }, { "name": "amount", "type": "uint256" }], "outputs": [{ "name": "", "type": "bool" }] },
+
+  { "type": "function", "name": "mint", "stateMutability": "nonpayable", "inputs": [{ "name": "to", "type": "address" }, { "name": "amount", "type": "uint256" }], "outputs": [] },
+  { "type": "function", "name": "burn", "stateMutability": "nonpayable", "inputs": [{ "name": "amount", "type": "uint256" }], "outputs": [] },
+
+  { "type": "function", "name": "transferWithMemo", "stateMutability": "nonpayable", "inputs": [{ "name": "to", "type": "address" }, { "name": "amount", "type": "uint256" }, { "name": "memo", "type": "bytes32" }], "outputs": [] },
+  { "type": "function", "name": "transferFromWithMemo", "stateMutability": "nonpayable", "inputs": [{ "name": "from", "type": "address" }, { "name": "to", "type": "address" }, { "name": "amount", "type": "uint256" }, { "name": "memo", "type": "bytes32" }], "outputs": [{ "name": "", "type": "bool" }] },
+  { "type": "function", "name": "mintWithMemo", "stateMutability": "nonpayable", "inputs": [{ "name": "to", "type": "address" }, { "name": "amount", "type": "uint256" }, { "name": "memo", "type": "bytes32" }], "outputs": [] },
+  { "type": "function", "name": "burnWithMemo", "stateMutability": "nonpayable", "inputs": [{ "name": "amount", "type": "uint256" }, { "name": "memo", "type": "bytes32" }], "outputs": [] },
+  { "type": "function", "name": "burnBlocked", "stateMutability": "nonpayable", "inputs": [{ "name": "from", "type": "address" }, { "name": "amount", "type": "uint256" }], "outputs": [] },
+
+  { "type": "function", "name": "quoteToken", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "address" }] },
+  { "type": "function", "name": "nextQuoteToken", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "address" }] },
+  { "type": "function", "name": "currency", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "string" }] },
+  { "type": "function", "name": "paused", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "bool" }] },
+  { "type": "function", "name": "supplyCap", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "uint256" }] },
+  { "type": "function", "name": "transferPolicyId", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "uint64" }] },
+
+  { "type": "function", "name": "pause", "stateMutability": "nonpayable", "inputs": [], "outputs": [] },
+  { "type": "function", "name": "unpause", "stateMutability": "nonpayable", "inputs": [], "outputs": [] },
+  { "type": "function", "name": "changeTransferPolicyId", "stateMutability": "nonpayable", "inputs": [{ "name": "newPolicyId", "type": "uint64" }], "outputs": [] },
+  { "type": "function", "name": "setNextQuoteToken", "stateMutability": "nonpayable", "inputs": [{ "name": "newQuoteToken", "type": "address" }], "outputs": [] },
+  { "type": "function", "name": "completeQuoteTokenUpdate", "stateMutability": "nonpayable", "inputs": [], "outputs": [] },
+  { "type": "function", "name": "setSupplyCap", "stateMutability": "nonpayable", "inputs": [{ "name": "newSupplyCap", "type": "uint256" }], "outputs": [] },
+
+  { "type": "function", "name": "DEFAULT_ADMIN_ROLE", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "bytes32" }] },
+  { "type": "function", "name": "BURN_BLOCKED_ROLE", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "bytes32" }] },
+  { "type": "function", "name": "ISSUER_ROLE", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "bytes32" }] },
+  { "type": "function", "name": "PAUSE_ROLE", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "bytes32" }] },
+  { "type": "function", "name": "UNPAUSE_ROLE", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "bytes32" }] },
+  { "type": "function", "name": "hasRole", "stateMutability": "view", "inputs": [{ "name": "account", "type": "address" }, { "name": "role", "type": "bytes32" }], "outputs": [{ "name": "", "type": "bool" }] },
+  { "type": "function", "name": "getRoleAdmin", "stateMutability": "view", "inputs": [{ "name": "role", "type": "bytes32" }], "outputs": [{ "name": "", "type": "bytes32" }] },
+  { "type": "function", "name": "grantRole", "stateMutability": "nonpayable", "inputs": [{ "name": "role", "type": "bytes32" }, { "name": "account", "type": "address" }], "outputs": [] },
+  { "type": "function", "name": "revokeRole", "stateMutability": "nonpayable", "inputs": [{ "name": "role", "type": "bytes32" }, { "name": "account", "type": "address" }], "outputs": [] },
+  { "type": "function", "name": "renounceRole", "stateMutability": "nonpayable", "inputs": [{ "name": "role", "type": "bytes32" }], "outputs": [] },
+  { "type": "function", "name": "setRoleAdmin", "stateMutability": "nonpayable", "inputs": [{ "name": "role", "type": "bytes32" }, { "name": "adminRole", "type": "bytes32" }], "outputs": [] },
+
+  { "type": "function", "name": "distributeReward", "stateMutability": "nonpayable", "inputs": [{ "name": "amount", "type": "uint256" }], "outputs": [] },
+  { "type": "function", "name": "setRewardRecipient", "stateMutability": "nonpayable", "inputs": [{ "name": "newRewardRecipient", "type": "address" }], "outputs": [] },
+  { "type": "function", "name": "claimRewards", "stateMutability": "nonpayable", "inputs": [], "outputs": [{ "name": "maxAmount", "type": "uint256" }] },
+  {
+    "type": "function",
+    "name": "userRewardInfo",
+    "stateMutability": "view",
+    "inputs": [{ "name": "user", "type": "address" }],
+    "outputs": [
+      { "name": "rewardRecipient", "type": "address" },
+      { "name": "rewardPerToken", "type": "uint256" },
+      { "name": "rewardBalance", "type": "uint256" }
+    ]
+  },
+  { "type": "function", "name": "globalRewardPerToken", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "uint256" }] },
+  { "type": "function", "name": "optedInSupply", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "uint128" }] },
+
+  { "type": "function", "name": "systemTransferFrom", "stateMutability": "nonpayable", "inputs": [{ "name": "from", "type": "address" }, { "name": "to", "type": "address" }, { "name": "amount", "type": "uint256" }], "outputs": [{ "name": "", "type": "bool" }] },
+  { "type": "function", "name": "transferFeePreTx", "stateMutability": "nonpayable", "inputs": [{ "name": "from", "type": "address" }, { "name": "amount", "type": "uint256" }], "outputs": [] },
+  { "type": "function", "name": "transferFeePostTx", "stateMutability": "nonpayable", "inputs": [{ "name": "to", "type": "address" }, { "name": "refund", "type": "uint256" }, { "name": "actualUsed", "type": "uint256" }], "outputs": [] }
+
+  ,{ "type": "error", "name": "Unauthorized", "inputs": [] }
+  ,{ "type": "error", "name": "SupplyCapExceeded", "inputs": [] }
+  ,{ "type": "error", "name": "IssuerRoleRequired", "inputs": [] }
+  ,{ "type": "error", "name": "NotIssuer", "inputs": [] }
+]

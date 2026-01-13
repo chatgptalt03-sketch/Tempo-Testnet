@@ -1,0 +1,214 @@
+[
+	{
+		"type": "function",
+		"name": "PRICE_SCALE",
+		"stateMutability": "view",
+		"inputs": [],
+		"outputs": [{ "name": "", "type": "uint32" }]
+	},
+	{
+		"type": "function",
+		"name": "TICK_SPACING",
+		"stateMutability": "view",
+		"inputs": [],
+		"outputs": [{ "name": "", "type": "int16" }]
+	},
+	{
+		"type": "function",
+		"name": "MIN_TICK",
+		"stateMutability": "view",
+		"inputs": [],
+		"outputs": [{ "name": "", "type": "int16" }]
+	},
+	{
+		"type": "function",
+		"name": "MAX_TICK",
+		"stateMutability": "view",
+		"inputs": [],
+		"outputs": [{ "name": "", "type": "int16" }]
+	},
+	{
+		"type": "function",
+		"name": "MIN_PRICE",
+		"stateMutability": "view",
+		"inputs": [],
+		"outputs": [{ "name": "", "type": "uint32" }]
+	},
+	{
+		"type": "function",
+		"name": "MAX_PRICE",
+		"stateMutability": "view",
+		"inputs": [],
+		"outputs": [{ "name": "", "type": "uint32" }]
+	},
+	{
+		"type": "function",
+		"name": "tickToPrice",
+		"stateMutability": "pure",
+		"inputs": [{ "name": "tick", "type": "int16" }],
+		"outputs": [{ "name": "price", "type": "uint32" }]
+	},
+	{
+		"type": "function",
+		"name": "priceToTick",
+		"stateMutability": "pure",
+		"inputs": [{ "name": "price", "type": "uint32" }],
+		"outputs": [{ "name": "tick", "type": "int16" }]
+	},
+	{
+		"type": "function",
+		"name": "pairKey",
+		"stateMutability": "pure",
+		"inputs": [
+			{ "name": "tokenA", "type": "address" },
+			{ "name": "tokenB", "type": "address" }
+		],
+		"outputs": [{ "name": "key", "type": "bytes32" }]
+	},
+	{
+		"type": "function",
+		"name": "createPair",
+		"stateMutability": "nonpayable",
+		"inputs": [{ "name": "base", "type": "address" }],
+		"outputs": [{ "name": "key", "type": "bytes32" }]
+	},
+	{
+		"type": "function",
+		"name": "books",
+		"stateMutability": "view",
+		"inputs": [{ "name": "pairKey", "type": "bytes32" }],
+		"outputs": [
+			{ "name": "base", "type": "address" },
+			{ "name": "quote", "type": "address" },
+			{ "name": "bestBidTick", "type": "int16" },
+			{ "name": "bestAskTick", "type": "int16" }
+		]
+	},
+	{
+		"type": "function",
+		"name": "getTickLevel",
+		"stateMutability": "view",
+		"inputs": [
+			{ "name": "base", "type": "address" },
+			{ "name": "tick", "type": "int16" },
+			{ "name": "isBid", "type": "bool" }
+		],
+		"outputs": [
+			{ "name": "head", "type": "uint128" },
+			{ "name": "tail", "type": "uint128" },
+			{ "name": "totalLiquidity", "type": "uint128" }
+		]
+	},
+	{
+		"type": "function",
+		"name": "balanceOf",
+		"stateMutability": "view",
+		"inputs": [
+			{ "name": "user", "type": "address" },
+			{ "name": "token", "type": "address" }
+		],
+		"outputs": [{ "name": "", "type": "uint128" }]
+	},
+	{
+		"type": "function",
+		"name": "withdraw",
+		"stateMutability": "nonpayable",
+		"inputs": [
+			{ "name": "token", "type": "address" },
+			{ "name": "amount", "type": "uint128" }
+		],
+		"outputs": []
+	},
+	{
+		"type": "function",
+		"name": "place",
+		"stateMutability": "nonpayable",
+		"inputs": [
+			{ "name": "token", "type": "address" },
+			{ "name": "amount", "type": "uint128" },
+			{ "name": "isBid", "type": "bool" },
+			{ "name": "tick", "type": "int16" }
+		],
+		"outputs": [{ "name": "orderId", "type": "uint128" }]
+	},
+	{
+		"type": "function",
+		"name": "placeFlip",
+		"stateMutability": "nonpayable",
+		"inputs": [
+			{ "name": "token", "type": "address" },
+			{ "name": "amount", "type": "uint128" },
+			{ "name": "isBid", "type": "bool" },
+			{ "name": "tick", "type": "int16" },
+			{ "name": "flipTick", "type": "int16" }
+		],
+		"outputs": [{ "name": "orderId", "type": "uint128" }]
+	},
+	{
+		"type": "function",
+		"name": "cancel",
+		"stateMutability": "nonpayable",
+		"inputs": [{ "name": "orderId", "type": "uint128" }],
+		"outputs": []
+	},
+	{
+		"type": "function",
+		"name": "cancelStaleOrder",
+		"stateMutability": "nonpayable",
+		"inputs": [{ "name": "orderId", "type": "uint128" }],
+		"outputs": []
+	},
+	{
+		"type": "function",
+		"name": "nextOrderId",
+		"stateMutability": "view",
+		"inputs": [],
+		"outputs": [{ "name": "", "type": "uint128" }]
+	},
+	{
+		"type": "function",
+		"name": "quoteSwapExactAmountIn",
+		"stateMutability": "view",
+		"inputs": [
+			{ "name": "tokenIn", "type": "address" },
+			{ "name": "tokenOut", "type": "address" },
+			{ "name": "amountIn", "type": "uint128" }
+		],
+		"outputs": [{ "name": "amountOut", "type": "uint128" }]
+	},
+	{
+		"type": "function",
+		"name": "quoteSwapExactAmountOut",
+		"stateMutability": "view",
+		"inputs": [
+			{ "name": "tokenIn", "type": "address" },
+			{ "name": "tokenOut", "type": "address" },
+			{ "name": "amountOut", "type": "uint128" }
+		],
+		"outputs": [{ "name": "amountIn", "type": "uint128" }]
+	},
+	{
+		"type": "function",
+		"name": "swapExactAmountIn",
+		"stateMutability": "nonpayable",
+		"inputs": [
+			{ "name": "tokenIn", "type": "address" },
+			{ "name": "tokenOut", "type": "address" },
+			{ "name": "amountIn", "type": "uint128" },
+			{ "name": "minAmountOut", "type": "uint128" }
+		],
+		"outputs": [{ "name": "amountOut", "type": "uint128" }]
+	},
+	{
+		"type": "function",
+		"name": "swapExactAmountOut",
+		"stateMutability": "nonpayable",
+		"inputs": [
+			{ "name": "tokenIn", "type": "address" },
+			{ "name": "tokenOut", "type": "address" },
+			{ "name": "amountOut", "type": "uint128" },
+			{ "name": "maxAmountIn", "type": "uint128" }
+		],
+		"outputs": [{ "name": "amountIn", "type": "uint128" }]
+	}
+]
