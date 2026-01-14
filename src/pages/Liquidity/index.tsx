@@ -4,8 +4,7 @@ import { CONTRACTS } from '@/config/contracts';
 import { tempoTestnet } from '@/lib/chains/tempoTestnet';
 import { TESTNET_ADDRESSES } from '@/contracts/addresses/testnet';
 import { ABIS } from '@/contracts/abis';
-import { addRecentToken, loadRecentTokens, subscribeRecentTokensUpdates } from '@/lib/recentTokens';
-import { isAddress, maxUint256, parseUnits } from 'viem';
+import { formatUnits, isAddress, maxUint256, parseUnits } from 'viem';
 import {
   useAccount,
   useChainId,
@@ -16,6 +15,7 @@ import {
 import { markTaskCompleted } from '@/lib/taskProgressStorage';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
+import { formatDecimalStringRounded } from '@/utils/formatters';
 
 const MAX_UINT128 = (1n << 128n) - 1n;
 
@@ -36,17 +36,6 @@ export default function Liquidity() {
 
   const isTempo = chainId === tempoTestnet.id;
 
-  const [recentVersion, setRecentVersion] = useState(0);
-  useEffect(() => {
-    return subscribeRecentTokensUpdates(() => setRecentVersion((v) => v + 1));
-  }, []);
-
-  const recentTokens = useMemo(() => {
-    void recentVersion;
-    if (!address) return [];
-    return loadRecentTokens(tempoTestnet.id, address).tokens.filter((t) => isAddress(t));
-  }, [address, recentVersion]);
-
   const tokenOptions = useMemo((): TokenOption[] => {
     const chain = (TESTNET_ADDRESSES as unknown as Record<number, Record<string, string>>)[tempoTestnet.id];
     const base: TokenOption[] = [
@@ -56,26 +45,8 @@ export default function Liquidity() {
       { key: 'ThetaUSD', label: 'ThetaUSD', address: chain.ThetaUSD as `0x${string}` },
     ];
 
-    const seen = new Set(base.map((t) => t.address.toLowerCase()));
-    const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
-    const recent: TokenOption[] = recentTokens
-      .filter((addr) => {
-        const lower = addr.toLowerCase();
-        if (seen.has(lower)) return false;
-        seen.add(lower);
-        return true;
-      })
-      .map((addr) => ({
-        key: `recent:${addr.toLowerCase()}`,
-        label: `${t('page.issuance.recentLocal')}: ${short(addr)}`,
-        address: addr as `0x${string}`,
-      }));
-
-    return [...base, ...recent];
-  }, [recentTokens, t]);
-
-  const CUSTOM_KEY = '__custom__';
-  const [customBase, setCustomBase] = useState('');
+    return base;
+  }, []);
 
   const [mode, setMode] = useState<LiquidityMode>('simple');
 
@@ -83,15 +54,8 @@ export default function Liquidity() {
   const [baseKey, setBaseKey] = useState<string>(() => tokenOptions[1]?.key ?? 'AlphaUSD');
 
   const baseAddress = useMemo(() => {
-    if (baseKey === CUSTOM_KEY) return isAddress(customBase) ? (customBase as `0x${string}`) : null;
     return tokenOptions.find((opt) => opt.key === baseKey)?.address ?? null;
-  }, [baseKey, customBase, tokenOptions]);
-
-  useEffect(() => {
-    if (!address) return;
-    if (!isTempo) return;
-    if (baseKey === CUSTOM_KEY && baseAddress) addRecentToken(tempoTestnet.id, address, baseAddress);
-  }, [address, baseAddress, baseKey, isTempo]);
+  }, [baseKey, tokenOptions]);
 
   const [amount, setAmount] = useState('');
   const [spreadBps, setSpreadBps] = useState('20'); // 0.20%
@@ -260,6 +224,26 @@ export default function Liquidity() {
     functionName: 'decimals',
     query: { enabled: Boolean(isTempo && baseAddress) },
   });
+
+  const { data: baseBalanceRaw, isLoading: isBaseBalanceLoading } = useReadContract({
+    abi: ABIS.TIP20Token,
+    address: baseAddress ?? undefined,
+    functionName: 'balanceOf',
+    args: isConnected && address && baseAddress ? [address] : undefined,
+    query: { enabled: Boolean(isTempo && isConnected && address && baseAddress) },
+  });
+
+  const baseBalanceText = useMemo(() => {
+    if (!isTempo) return '—';
+    if (!isConnected) return '—';
+    if (!address) return '—';
+    if (!baseAddress) return '—';
+    if (isBaseBalanceLoading) return t('page.common.loadingBalances');
+    const decimals = typeof baseDecimals === 'number' ? baseDecimals : 6;
+    const raw = typeof baseBalanceRaw === 'bigint' ? baseBalanceRaw : 0n;
+    const value = formatUnits(raw, decimals);
+    return formatDecimalStringRounded(value, { fractionDigits: 2, groupSeparator: ',' });
+  }, [address, baseAddress, baseBalanceRaw, baseDecimals, isBaseBalanceLoading, isConnected, isTempo, t]);
 
   const amountParsed = useMemo(() => {
     if (!amount.trim()) return null;
@@ -473,6 +457,11 @@ export default function Liquidity() {
       <div>
         <h1 className="text-3xl font-bold">{t('page.liquidity.title')}</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">{t('page.liquidity.subtitle')}</p>
+
+        <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 dark:border-gray-800 dark:bg-gray-800/50 dark:text-gray-300">
+          <div className="font-semibold">{t('page.liquidity.mmNotice.title')}</div>
+          <div className="mt-1">{t('page.liquidity.mmNotice.body')}</div>
+        </div>
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
@@ -526,23 +515,17 @@ export default function Liquidity() {
                     {t.label}
                   </option>
                 ))}
-                <option value={CUSTOM_KEY}>{t('page.common.customToken')}</option>
               </select>
-              {baseKey === CUSTOM_KEY ? (
-                <input
-                  value={customBase}
-                  onChange={(e) => setCustomBase(e.target.value)}
-                  placeholder={t('page.common.customTokenAddressPlaceholder')}
-                  className="mt-2 w-full rounded-lg border border-gray-200 bg-white p-3 font-mono text-xs outline-none focus:ring-2 focus:ring-purple-500 dark:border-gray-800 dark:bg-gray-900"
-                />
-              ) : null}
-              {baseKey === CUSTOM_KEY && customBase.trim() && !isAddress(customBase.trim()) ? (
-                <div className="mt-2 text-xs text-red-600 dark:text-red-400">{t('common.invalidAddress')}</div>
-              ) : null}
               <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                {t('page.liquidity.quoteToken')}{' '}
-                <span className="font-mono">{typeof quoteToken === 'string' ? quoteToken : '—'}</span>
+                {t('page.liquidity.balance')}{' '}
+                <span className="font-mono">{baseBalanceText}</span>
               </p>
+              {baseAddress ? (
+                <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                  {t('page.common.token')}{' '}
+                  <span className="font-mono">{baseAddress}</span>
+                </p>
+              ) : null}
             </div>
 
             <div>

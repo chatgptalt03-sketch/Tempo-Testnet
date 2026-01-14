@@ -521,15 +521,19 @@ const EN: Dict = {
   'page.common.token': 'Token',
 
   // Pages: Liquidity
-  'page.liquidity.title': 'Provide Liquidity',
+  'page.liquidity.title': 'Market Making',
   'page.liquidity.subtitle':
-    'Add liquidity by placing orders on the DEX. Simple mode places a two-sided order around the mid price; advanced mode exposes the underlying orderbook tools.',
+    'Place limit orders on the orderbook to provide liquidity. This is not an AMM “add liquidity / LP token” flow.',
+  'page.liquidity.mmNotice.title': 'What is this?',
+  'page.liquidity.mmNotice.body':
+    'You are placing buy/sell orders around the market price so swaps and fee conversions can execute. Your orders may fill, converting your balance into the other token; this is normal market-maker behavior.',
   'page.liquidity.poolTitle': 'Pool',
   'page.liquidity.mode.simple': 'Simple',
   'page.liquidity.mode.orderbookTools': 'Orderbook tools',
   'page.liquidity.switchNetworkToPlaceOrders': 'Switch your wallet network to {network} to place orders.',
   'page.liquidity.viewDexOnExplorer': 'View DEX on Explorer',
   'page.liquidity.token': 'Token',
+  'page.liquidity.balance': 'Balance:',
   'page.liquidity.quoteToken': 'Quote token:',
   'page.liquidity.amount': 'Amount',
   'page.liquidity.twoSided.title': 'Two-sided liquidity (recommended)',
@@ -1090,15 +1094,19 @@ const TR: Dict = {
   'page.common.token': 'Token',
 
   // Pages: Liquidity
-  'page.liquidity.title': 'Likidite Sağla',
+  'page.liquidity.title': 'Piyasa Yapıcılığı',
   'page.liquidity.subtitle':
-    'DEX üzerinde emir vererek likidite ekle. Basit mod, orta fiyatın etrafına iki taraflı emir koyar; gelişmiş mod emir defteri araçlarını açar.',
+    'Emir defterine limit emirler koyarak likidite sağla. Bu, AMM’de “likidite ekle / LP token” akışı değildir.',
+  'page.liquidity.mmNotice.title': 'Bu sayfa ne yapıyor?',
+  'page.liquidity.mmNotice.body':
+    'Orta fiyatın etrafına alış/satış emirleri yerleştirirsin; böylece swap’ler ve fee dönüşümleri çalışır. Emirlerin dolabilir ve bakiyen diğer tokene dönüşebilir; bu piyasa yapıcılığının normal sonucudur.',
   'page.liquidity.poolTitle': 'Havuz',
   'page.liquidity.mode.simple': 'Basit',
   'page.liquidity.mode.orderbookTools': 'Orderbook araçları',
   'page.liquidity.switchNetworkToPlaceOrders': '{network} ağına geçerek emir ver.',
   'page.liquidity.viewDexOnExplorer': 'Explorer’da DEX’i görüntüle',
   'page.liquidity.token': 'Token',
+  'page.liquidity.balance': 'Bakiye:',
   'page.liquidity.quoteToken': 'Kotasyon tokenı:',
   'page.liquidity.amount': 'Tutar',
   'page.liquidity.twoSided.title': 'İki taraflı likidite (önerilir)',
