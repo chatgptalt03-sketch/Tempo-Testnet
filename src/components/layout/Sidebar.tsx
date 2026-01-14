@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store';
 import { useI18n } from '@/lib/i18n';
+import { SocialLinks } from './SocialLinks';
 import {
   type LucideIcon,
   ArrowLeftRight,
@@ -65,29 +66,32 @@ export function Sidebar({ isOpen = true }: SidebarProps) {
       >
         <nav className="flex flex-col gap-2">
           {navItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.end}
-              onClick={() => setSidebarOpen(false)}
-              title={item.descriptionKey ? t(item.descriptionKey) : t(item.labelKey)}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-[#66D121] text-white'
-                    : 'text-gray-600 hover:bg-[#66D121]/10 hover:text-[#2F6E0C] dark:text-gray-300 dark:hover:bg-[#66D121]/15 dark:hover:text-[#66D121]',
-                )
-              }
-            >
-              <item.icon className="h-5 w-5" />
-              <div className="flex min-w-0 flex-col">
-                <div className="truncate">{t(item.labelKey)}</div>
-                {item.descriptionKey ? (
-                  <div className="truncate text-xs font-normal opacity-80">{t(item.descriptionKey)}</div>
-                ) : null}
-              </div>
-            </NavLink>
+            <div key={item.path} className="flex flex-col gap-2">
+              <NavLink
+                to={item.path}
+                end={item.end}
+                onClick={() => setSidebarOpen(false)}
+                title={item.descriptionKey ? t(item.descriptionKey) : t(item.labelKey)}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-[#66D121] text-white'
+                      : 'text-gray-600 hover:bg-[#66D121]/10 hover:text-[#2F6E0C] dark:text-gray-300 dark:hover:bg-[#66D121]/15 dark:hover:text-[#66D121]',
+                  )
+                }
+              >
+                <item.icon className="h-5 w-5" />
+                <div className="flex min-w-0 flex-col">
+                  <div className="truncate">{t(item.labelKey)}</div>
+                  {item.descriptionKey ? (
+                    <div className="truncate text-xs font-normal opacity-80">{t(item.descriptionKey)}</div>
+                  ) : null}
+                </div>
+              </NavLink>
+
+              {item.path === '/contracts' ? <SocialLinks /> : null}
+            </div>
           ))}
         </nav>
       </aside>
