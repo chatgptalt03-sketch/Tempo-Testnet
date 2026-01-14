@@ -66,7 +66,7 @@ export default function Dashboard() {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="text-xl font-semibold leading-tight">{b.label}</div>
+                      <div className="text-xl font-semibold leading-tight">{b.symbol ?? b.name ?? b.label}</div>
                       <div className="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">{formattedValue}</div>
                       <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {t('page.dashboard.approxUsd', { value: formattedValue })}

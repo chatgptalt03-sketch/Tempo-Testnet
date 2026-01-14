@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAccount, useChainId, usePublicClient, useReadContract, useSimulateContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { useSearchParams } from 'react-router-dom';
-import { Coins, Droplet, Loader2, Repeat } from 'lucide-react';
+import { Coins, Droplet, Info, Loader2, Repeat } from 'lucide-react';
 import { formatUnits, isAddress, maxUint256, parseUnits } from 'viem';
 import { tempoTestnet } from '@/lib/chains/tempoTestnet';
 import { CONTRACTS } from '@/config/contracts';
@@ -1346,29 +1346,38 @@ export function UseForFeesPanel() {
           </span>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <Button
-            type="button"
-            onClick={setAsFeeToken}
-            disabled={!isConnected || !isTempo || !feeManager || isSetUserTokenPending || !setUserTokenPreflight.isSuccess}
-            className="sm:w-auto"
-          >
-            {isSetUserTokenPending ? t('common.submitting') : t('issuance.fees.setAsFeeToken', { symbol: sUser })}
-          </Button>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-2 sm:w-auto">
+            <div className="flex max-w-[360px] items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200">
+              <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-300" />
+              <div className="leading-snug">
+                <div className="font-semibold">{t('issuance.fees.prefCtaTitle')}</div>
+                <div className="opacity-90">{t('issuance.fees.prefCtaBody')}</div>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              onClick={setAsFeeToken}
+              disabled={!isConnected || !isTempo || !feeManager || isSetUserTokenPending || !setUserTokenPreflight.isSuccess}
+              className="sm:w-auto"
+            >
+              {isSetUserTokenPending ? t('common.submitting') : t('issuance.fees.setAsFeeToken', { symbol: sUser })}
+            </Button>
+          </div>
 
           <div className="grid flex-1 grid-cols-1 gap-2 sm:grid-cols-[320px_140px_auto] sm:items-end sm:justify-end">
             <div className="sm:col-start-1 sm:row-start-1">
               <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">{t('issuance.fees.testRecipient')}</label>
+              <div className="mt-1 text-[11px] text-gray-500 dark:text-gray-500">
+                {t('issuance.fees.testRecipientHint')}
+              </div>
               <Input
                 value={testRecipient}
                 onChange={(e) => setTestRecipient(e.target.value)}
                 placeholder={defaultRecipientAddress ? defaultRecipientAddress : '0x...'}
-                className="mt-1 font-mono"
+                className="mt-2 font-mono"
               />
-            </div>
-
-            <div className="sm:col-start-1 sm:row-start-2 mt-1 text-[11px] text-gray-500 dark:text-gray-500">
-              {t('issuance.fees.testRecipientHint')}
             </div>
 
             <div className="sm:col-start-2 sm:row-start-1">
@@ -1383,10 +1392,6 @@ export function UseForFeesPanel() {
                 <option value={known.PathUSD}>PathUSD</option>
                 <option value={known.AlphaUSD}>AlphaUSD</option>
               </Select>
-            </div>
-
-            <div className="sm:col-start-2 sm:row-start-2 mt-1 text-[11px] text-gray-500 dark:text-gray-500">
-              {t('issuance.fees.testPaymentTokenHint')}
             </div>
 
             <div className="sm:col-start-3 sm:row-start-1 sm:w-[140px]">
@@ -1438,6 +1443,10 @@ export function UseForFeesPanel() {
 
         <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
           {t('issuance.fees.metamaskFeeDisplayNote')}
+        </p>
+
+        <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+          {t('issuance.fees.testPaymentTokenHint')}
         </p>
 
         {testTransferError ? (

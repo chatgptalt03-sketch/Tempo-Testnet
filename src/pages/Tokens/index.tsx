@@ -39,7 +39,7 @@ export default function Tokens() {
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div>
-                          <div className="text-sm font-semibold">{b.symbol ?? b.label}</div>
+                          <div className="text-sm font-semibold">{b.symbol ?? b.name ?? b.label}</div>
                           <div className="text-xs text-gray-600 dark:text-gray-400">{t('page.tokens.stablecoinTag')}</div>
                         </div>
                         <div className="font-mono text-base font-semibold whitespace-nowrap">

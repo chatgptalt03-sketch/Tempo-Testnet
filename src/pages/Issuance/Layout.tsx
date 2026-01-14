@@ -11,30 +11,11 @@ import { TESTNET_ADDRESSES } from '@/contracts/addresses/testnet';
 import { addRecentToken, loadRecentTokens, subscribeRecentTokensUpdates } from '@/lib/recentTokens';
 import { CONTRACTS } from '@/config/contracts';
 import { useI18n } from '@/lib/i18n';
+import { discoverFactoryCreatedTokenAddresses } from '@/lib/indexSupply';
 
 const TOKEN_CREATED_EVENT = parseAbiItem(
   'event TokenCreated(address indexed token, string name, string symbol, string currency, address quoteToken, address admin, bytes32 salt)',
 );
-
-const ROLE_ABI = [
-  {
-    type: 'function',
-    name: 'DEFAULT_ADMIN_ROLE',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ name: '', type: 'bytes32' }],
-  },
-  {
-    type: 'function',
-    name: 'hasRole',
-    stateMutability: 'view',
-    inputs: [
-      { name: 'account', type: 'address' },
-      { name: 'role', type: 'bytes32' },
-    ],
-    outputs: [{ name: '', type: 'bool' }],
-  },
-] as const;
 
 function TabLink({
   to,
@@ -95,12 +76,10 @@ export default function IssuanceLayout() {
       return next;
     });
 
-    if (chainId && typeof address === 'string' && isAddress(tokenAddress)) {
-      addRecentToken(chainId, address, tokenAddress);
+    if (typeof address === 'string' && isAddress(tokenAddress)) {
+      addRecentToken(tempoTestnet.id, address, tokenAddress);
     }
   };
-
-  const known = TESTNET_ADDRESSES[tempoTestnet.id];
 
   const factoryAddress = useMemo(() => CONTRACTS.find((c) => c.key === 'tokenFactory')?.address, []);
 
@@ -126,22 +105,22 @@ export default function IssuanceLayout() {
   }, []);
 
   useEffect(() => {
-    if (!address || !chainId) {
+    if (!address) {
       setRecentTokens([]);
       return;
     }
 
     const refresh = () => {
-      const state = loadRecentTokens(chainId, address);
+      const state = loadRecentTokens(tempoTestnet.id, address);
       setRecentTokens(state.tokens);
     };
 
     refresh();
     return subscribeRecentTokensUpdates(refresh);
-  }, [address, chainId]);
+  }, [address]);
 
   useEffect(() => {
-    if (!address || chainId !== tempoTestnet.id || !publicClient || !factoryAddress) {
+    if (!address || !publicClient || !factoryAddress) {
       setCreatedTokens([]);
       return;
     }
@@ -151,6 +130,22 @@ export default function IssuanceLayout() {
 
     (async () => {
       try {
+        // Preferred: IndexSupply can filter by non-indexed params (admin) and scan full history cheaply.
+        try {
+          const created = await discoverFactoryCreatedTokenAddresses({
+            chainId: tempoTestnet.id,
+            factoryAddress,
+            adminAddress: address,
+            limit: 200,
+          });
+          if (!cancelled && created.length > 0) {
+            setCreatedTokens(created.slice(0, 50));
+            return;
+          }
+        } catch {
+          // fall back to RPC log scan below
+        }
+
         const latest = await publicClient.getBlockNumber();
         const lookbackFrom = latest > tokenFactoryLookbackBlocks ? latest - tokenFactoryLookbackBlocks : 0n;
         const fromBlock = lookbackFrom > tokenFactoryStartBlock ? lookbackFrom : tokenFactoryStartBlock;
@@ -163,37 +158,18 @@ export default function IssuanceLayout() {
         });
 
         const tokensFromLogs = logs
+          .filter((l) => {
+            const admin = (l.args as { admin?: `0x${string}` } | undefined)?.admin;
+            return typeof admin === 'string' && admin.toLowerCase() === address.toLowerCase();
+          })
           .map((l) => (l.args as { token?: `0x${string}` } | undefined)?.token)
           .filter((t): t is `0x${string}` => Boolean(t));
 
-        const uniqueCandidates = Array.from(new Set(tokensFromLogs.map((t) => t.toLowerCase())))
+        const unique = Array.from(new Set(tokensFromLogs.map((t) => t.toLowerCase())))
           .map((t) => t as `0x${string}`)
           .slice(0, 50);
 
-        const owned: `0x${string}`[] = [];
-        for (const tokenAddr of uniqueCandidates) {
-          try {
-            const adminRole = (await publicClient.readContract({
-              address: tokenAddr,
-              abi: ROLE_ABI,
-              functionName: 'DEFAULT_ADMIN_ROLE',
-              args: [],
-            })) as `0x${string}`;
-
-            const hasAdmin = (await publicClient.readContract({
-              address: tokenAddr,
-              abi: ROLE_ABI,
-              functionName: 'hasRole',
-              args: [address, adminRole],
-            })) as boolean;
-
-            if (hasAdmin) owned.push(tokenAddr);
-          } catch {
-            // ignore tokens that don't match expected roles interface
-          }
-        }
-
-        if (!cancelled) setCreatedTokens(owned);
+        if (!cancelled) setCreatedTokens(unique);
       } catch {
         if (!cancelled) setCreatedTokens([]);
       } finally {
@@ -204,7 +180,7 @@ export default function IssuanceLayout() {
     return () => {
       cancelled = true;
     };
-  }, [address, chainId, factoryAddress, publicClient, tokenFactoryLookbackBlocks, tokenFactoryStartBlock]);
+  }, [address, factoryAddress, publicClient, tokenFactoryLookbackBlocks, tokenFactoryStartBlock]);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -236,7 +212,7 @@ export default function IssuanceLayout() {
               </p>
             )}
 
-            {address && (recentTokens.length > 0 || createdTokens.length > 0) ? (
+            {address ? (
               <div className="mt-3">
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">{t('page.issuance.tokenPicker')}</label>
                 <Select
@@ -281,22 +257,6 @@ export default function IssuanceLayout() {
               disabled={!token}
             >
               {t('page.issuance.clear')}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setToken(known.PathUSD)}
-            >
-              {t('page.issuance.useToken', { symbol: 'PathUSD' })}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setToken(known.AlphaUSD)}
-            >
-              {t('page.issuance.useToken', { symbol: 'AlphaUSD' })}
             </Button>
           </div>
         </div>

@@ -13,6 +13,13 @@ import {
 const ERC20_ABI = [
   {
     type: 'function',
+    name: 'name',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'string' }],
+  },
+  {
+    type: 'function',
     name: 'symbol',
     stateMutability: 'view',
     inputs: [],
@@ -73,6 +80,7 @@ export type StablecoinBalanceRow = {
   key: string;
   label: string;
   tokenAddress: `0x${string}`;
+  name?: string;
   symbol?: string;
   value: string;
 };
@@ -297,6 +305,11 @@ export function useBalances() {
       {
         abi: ERC20_ABI,
         address: token.address,
+        functionName: 'name' as const,
+      },
+      {
+        abi: ERC20_ABI,
+        address: token.address,
         functionName: 'symbol' as const,
       },
       {
@@ -327,17 +340,20 @@ export function useBalances() {
 
     const rows: StablecoinBalanceRow[] = [];
     for (let i = 0; i < tokens.length; i++) {
-      const symbolResult = query.data?.[i * 3]?.result;
-      const decimalsResult = query.data?.[i * 3 + 1]?.result;
-      const balanceResult = query.data?.[i * 3 + 2]?.result;
+      const nameResult = query.data?.[i * 4]?.result;
+      const symbolResult = query.data?.[i * 4 + 1]?.result;
+      const decimalsResult = query.data?.[i * 4 + 2]?.result;
+      const balanceResult = query.data?.[i * 4 + 3]?.result;
       const decimals = typeof decimalsResult === 'number' ? decimalsResult : 6;
       const raw = typeof balanceResult === 'bigint' ? balanceResult : 0n;
       const value = formatUnits(raw, decimals);
+      const name = typeof nameResult === 'string' ? nameResult : undefined;
       const symbol = typeof symbolResult === 'string' ? symbolResult : undefined;
       rows.push({
         key: tokens[i].key,
         label: tokens[i].label,
         tokenAddress: tokens[i].address,
+        name,
         symbol,
         value,
       });
