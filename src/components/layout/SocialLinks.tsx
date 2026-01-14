@@ -59,7 +59,7 @@ const links: SocialLink[] = [
 
 export function SocialLinks() {
   return (
-    <div className="grid grid-cols-3 justify-items-center gap-3 px-3 pb-2">
+    <div className="mt-4 grid grid-cols-3 justify-items-center gap-2 px-3 pb-2">
       {links.map((link) => {
         const baseClassName =
           'inline-flex h-[30px] w-[30px] rounded-full bg-gray-900 outline outline-2 outline-gray-900 ' +
