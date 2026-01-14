@@ -4,7 +4,6 @@ import { tempoTestnet } from '@/lib/chains/tempoTestnet';
 import { CONTRACTS } from '@/config/contracts';
 import { TESTNET_ADDRESSES } from '@/contracts/addresses/testnet';
 import { ABIS } from '@/contracts/abis';
-import { loadRecentTokens, subscribeRecentTokensUpdates, addRecentToken } from '@/lib/recentTokens';
 import {
   formatUnits,
   isAddress,
@@ -31,6 +30,67 @@ type TokenOption = {
 
 type SwapMode = 'exactIn' | 'exactOut';
 
+function addThousandsSeparators(integerPart: string) {
+  // 1234567 -> 1,234,567
+  return integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function incrementDecimalString(integerPart: string) {
+  let carry = 1;
+  const chars = integerPart.split('');
+  for (let i = chars.length - 1; i >= 0; i -= 1) {
+    const d = chars[i]?.charCodeAt(0) ?? 48;
+    if (d < 48 || d > 57) continue;
+    const next = d - 48 + carry;
+    if (next >= 10) {
+      chars[i] = '0';
+      carry = 1;
+    } else {
+      chars[i] = String(next);
+      carry = 0;
+      break;
+    }
+  }
+  if (carry === 1) chars.unshift('1');
+  return chars.join('');
+}
+
+function formatDecimalString(value: string, fractionDigits = 2) {
+  // value is a base-10 decimal string like "1234.56789" (no grouping)
+  // Output: "1,234.57" (commas + rounded to `fractionDigits`)
+  const trimmed = value.trim();
+  if (!trimmed) return '0.00';
+
+  const [rawIntegerPart, rawFractionPart] = trimmed.split('.');
+  let integerPart = rawIntegerPart?.replace(/^0+(?=\d)/, '') ?? '0';
+  let fractionPart = rawFractionPart ?? '';
+
+  if (fractionDigits <= 0) {
+    return addThousandsSeparators(integerPart);
+  }
+
+  // Pad right so we can safely slice.
+  if (fractionPart.length < fractionDigits + 1) {
+    fractionPart = fractionPart.padEnd(fractionDigits + 1, '0');
+  }
+
+  const keep = fractionPart.slice(0, fractionDigits);
+  const roundDigit = fractionPart.charCodeAt(fractionDigits) ? fractionPart[fractionDigits] : '0';
+
+  let keepNumber = Number(keep || '0');
+  const shouldRoundUp = roundDigit >= '5';
+  if (shouldRoundUp) keepNumber += 1;
+
+  let roundedFraction = String(keepNumber).padStart(fractionDigits, '0');
+  if (roundedFraction.length > fractionDigits) {
+    // Carry into integer part (e.g., 9.999 -> 10.00 when showing 2 decimals)
+    roundedFraction = '0'.repeat(fractionDigits);
+    integerPart = incrementDecimalString(integerPart);
+  }
+
+  return `${addThousandsSeparators(integerPart)}.${roundedFraction}`;
+}
+
 export default function DEX() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
@@ -39,17 +99,6 @@ export default function DEX() {
   const { t } = useI18n();
 
   const isTempo = chainId === tempoTestnet.id;
-
-  const [recentVersion, setRecentVersion] = useState(0);
-  useEffect(() => {
-    return subscribeRecentTokensUpdates(() => setRecentVersion((v) => v + 1));
-  }, []);
-
-  const recentTokens = useMemo(() => {
-    void recentVersion;
-    if (!address) return [];
-    return loadRecentTokens(tempoTestnet.id, address).tokens.filter((t) => isAddress(t));
-  }, [address, recentVersion]);
 
   const tokenOptions = useMemo((): TokenOption[] => {
     const chain = (TESTNET_ADDRESSES as unknown as Record<number, Record<string, string>>)[tempoTestnet.id];
@@ -60,50 +109,19 @@ export default function DEX() {
       { key: 'ThetaUSD', label: 'ThetaUSD', address: chain.ThetaUSD as `0x${string}` },
     ];
 
-    const seen = new Set(base.map((t) => t.address.toLowerCase()));
-    const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
-    const recent: TokenOption[] = recentTokens
-      .filter((addr) => {
-        const lower = addr.toLowerCase();
-        if (seen.has(lower)) return false;
-        seen.add(lower);
-        return true;
-      })
-      .map((addr) => ({
-        key: `recent:${addr.toLowerCase()}`,
-        label: `${t('page.issuance.recentLocal')}: ${short(addr)}`,
-        address: addr as `0x${string}`,
-      }));
+    return base;
+  }, []);
 
-    return [...base, ...recent];
-  }, [recentTokens, t]);
-
-  const CUSTOM_KEY = '__custom__';
   const [tokenInKey, setTokenInKey] = useState<string>(() => tokenOptions[0]?.key ?? 'PathUSD');
   const [tokenOutKey, setTokenOutKey] = useState<string>(() => tokenOptions[1]?.key ?? 'AlphaUSD');
-  const [customIn, setCustomIn] = useState('');
-  const [customOut, setCustomOut] = useState('');
 
   const tokenInAddress = useMemo(() => {
-    if (tokenInKey === CUSTOM_KEY) {
-      return isAddress(customIn) ? (customIn as `0x${string}`) : null;
-    }
     return tokenOptions.find((opt) => opt.key === tokenInKey)?.address ?? null;
-  }, [customIn, tokenInKey, tokenOptions]);
+  }, [tokenInKey, tokenOptions]);
 
   const tokenOutAddress = useMemo(() => {
-    if (tokenOutKey === CUSTOM_KEY) {
-      return isAddress(customOut) ? (customOut as `0x${string}`) : null;
-    }
     return tokenOptions.find((opt) => opt.key === tokenOutKey)?.address ?? null;
-  }, [customOut, tokenOutKey, tokenOptions]);
-
-  useEffect(() => {
-    if (!address) return;
-    if (!isTempo) return;
-    if (tokenInKey === CUSTOM_KEY && tokenInAddress) addRecentToken(tempoTestnet.id, address, tokenInAddress);
-    if (tokenOutKey === CUSTOM_KEY && tokenOutAddress) addRecentToken(tempoTestnet.id, address, tokenOutAddress);
-  }, [address, isTempo, tokenInAddress, tokenInKey, tokenOutAddress, tokenOutKey]);
+  }, [tokenOutKey, tokenOptions]);
   const [mode, setMode] = useState<SwapMode>('exactIn');
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [amountIn, setAmountIn] = useState('');
@@ -137,6 +155,50 @@ export default function DEX() {
     functionName: 'decimals',
     query: { enabled: Boolean(isTempo && tokenOutAddress) },
   });
+
+  const {
+    data: balanceIn,
+    isLoading: isBalanceInLoading,
+    isError: isBalanceInError,
+  } = useReadContract({
+    abi: ABIS.TIP20Token,
+    address: tokenInAddress ?? undefined,
+    functionName: 'balanceOf',
+    args: isConnected && address && tokenInAddress ? [address] : undefined,
+    query: { enabled: Boolean(isTempo && isConnected && address && tokenInAddress) },
+  });
+
+  const {
+    data: balanceOut,
+    isLoading: isBalanceOutLoading,
+    isError: isBalanceOutError,
+  } = useReadContract({
+    abi: ABIS.TIP20Token,
+    address: tokenOutAddress ?? undefined,
+    functionName: 'balanceOf',
+    args: isConnected && address && tokenOutAddress ? [address] : undefined,
+    query: { enabled: Boolean(isTempo && isConnected && address && tokenOutAddress) },
+  });
+
+  const balanceInText = useMemo(() => {
+    if (!isConnected || !address) return t('page.common.connectToViewBalances');
+    if (!isTempo) return '—';
+    if (isBalanceInLoading) return t('page.common.loadingBalances');
+    if (isBalanceInError) return '—';
+    if (typeof balanceIn !== 'bigint') return '—';
+    const d = typeof decimalsIn === 'number' ? decimalsIn : 6;
+    return formatDecimalString(formatUnits(balanceIn, d), 2);
+  }, [address, balanceIn, decimalsIn, isBalanceInError, isBalanceInLoading, isConnected, isTempo, t]);
+
+  const balanceOutText = useMemo(() => {
+    if (!isConnected || !address) return t('page.common.connectToViewBalances');
+    if (!isTempo) return '—';
+    if (isBalanceOutLoading) return t('page.common.loadingBalances');
+    if (isBalanceOutError) return '—';
+    if (typeof balanceOut !== 'bigint') return '—';
+    const d = typeof decimalsOut === 'number' ? decimalsOut : 6;
+    return formatDecimalString(formatUnits(balanceOut, d), 2);
+  }, [address, balanceOut, decimalsOut, isBalanceOutError, isBalanceOutLoading, isConnected, isTempo, t]);
 
   const amountInParsed = useMemo(() => {
     if (mode !== 'exactIn') return null;
@@ -190,7 +252,12 @@ export default function DEX() {
       tokenInAddress !== tokenOutAddress,
   );
 
-  const { data: quotedOut } = useReadContract({
+  const {
+    data: quotedOut,
+    isLoading: isQuoteOutLoading,
+    isError: isQuoteOutError,
+    error: quoteOutError,
+  } = useReadContract({
     abi: ABIS.StablecoinDEX,
     address: dex,
     functionName: 'quoteSwapExactAmountIn',
@@ -198,13 +265,37 @@ export default function DEX() {
     query: { enabled: canQuoteExactIn },
   });
 
-  const { data: quotedIn } = useReadContract({
+  const {
+    data: quotedIn,
+    isLoading: isQuoteInLoading,
+    isError: isQuoteInError,
+    error: quoteInError,
+  } = useReadContract({
     abi: ABIS.StablecoinDEX,
     address: dex,
     functionName: 'quoteSwapExactAmountOut',
     args: canQuoteExactOut ? [tokenInAddress!, tokenOutAddress!, amountOutParsed!] : undefined,
     query: { enabled: canQuoteExactOut },
   });
+
+  const quoteUnavailable = useMemo(() => {
+    if (mode === 'exactIn') {
+      if (!canQuoteExactIn) return false;
+      if (isQuoteOutLoading) return false;
+      return typeof quotedOut !== 'bigint';
+    }
+    if (!canQuoteExactOut) return false;
+    if (isQuoteInLoading) return false;
+    return typeof quotedIn !== 'bigint';
+  }, [
+    canQuoteExactIn,
+    canQuoteExactOut,
+    isQuoteInLoading,
+    isQuoteOutLoading,
+    mode,
+    quotedIn,
+    quotedOut,
+  ]);
 
   const slippageBpsInt = useMemo(() => {
     const bps = Number(slippageBps);
@@ -429,19 +520,10 @@ export default function DEX() {
                     {t.label}
                   </option>
                 ))}
-                <option value={CUSTOM_KEY}>{t('page.common.customToken')}</option>
               </select>
-              {tokenInKey === CUSTOM_KEY ? (
-                <input
-                  value={customIn}
-                  onChange={(e) => setCustomIn(e.target.value)}
-                  placeholder={t('page.common.customTokenAddressPlaceholder')}
-                  className="mt-2 w-full rounded-lg border border-gray-200 bg-white p-3 font-mono text-xs outline-none focus:ring-2 focus:ring-purple-500 dark:border-gray-800 dark:bg-gray-900"
-                />
-              ) : null}
-              {tokenInKey === CUSTOM_KEY && customIn.trim() && !isAddress(customIn.trim()) ? (
-                <div className="mt-2 text-xs text-red-600 dark:text-red-400">{t('common.invalidAddress')}</div>
-              ) : null}
+              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                {t('page.dex.balanceLabel')}: <span className="font-mono">{balanceInText}</span>
+              </div>
             </div>
 
             <div>
@@ -458,19 +540,10 @@ export default function DEX() {
                     {t.label}
                   </option>
                 ))}
-                <option value={CUSTOM_KEY}>{t('page.common.customToken')}</option>
               </select>
-              {tokenOutKey === CUSTOM_KEY ? (
-                <input
-                  value={customOut}
-                  onChange={(e) => setCustomOut(e.target.value)}
-                  placeholder={t('page.common.customTokenAddressPlaceholder')}
-                  className="mt-2 w-full rounded-lg border border-gray-200 bg-white p-3 font-mono text-xs outline-none focus:ring-2 focus:ring-purple-500 dark:border-gray-800 dark:bg-gray-900"
-                />
-              ) : null}
-              {tokenOutKey === CUSTOM_KEY && customOut.trim() && !isAddress(customOut.trim()) ? (
-                <div className="mt-2 text-xs text-red-600 dark:text-red-400">{t('common.invalidAddress')}</div>
-              ) : null}
+              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                {t('page.dex.balanceLabel')}: <span className="font-mono">{balanceOutText}</span>
+              </div>
             </div>
 
             {mode === 'exactIn' ? (
@@ -571,6 +644,25 @@ export default function DEX() {
             )}
           </div>
 
+          {quoteUnavailable ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+              <div className="font-semibold">{t('page.dex.quoteUnavailable')}</div>
+              <div className="mt-1 text-xs">{t('page.dex.quoteUnavailableHint')}</div>
+              {mode === 'exactIn' && (isQuoteOutError || quoteOutError) ? (
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-xs font-semibold">{t('common.details')}</summary>
+                  <div className="mt-1 whitespace-pre-wrap text-xs opacity-90">{(quoteOutError as Error)?.message}</div>
+                </details>
+              ) : null}
+              {mode === 'exactOut' && (isQuoteInError || quoteInError) ? (
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-xs font-semibold">{t('common.details')}</summary>
+                  <div className="mt-1 whitespace-pre-wrap text-xs opacity-90">{(quoteInError as Error)?.message}</div>
+                </details>
+              ) : null}
+            </div>
+          ) : null}
+
           {approveError ? (
             <div className="rounded-lg bg-red-50 p-4 text-sm text-red-900 dark:bg-red-900/20 dark:text-red-200">
               {approveError.message}
@@ -610,7 +702,7 @@ export default function DEX() {
             <Button
               type="button"
               onClick={approve}
-              disabled={!isConnected || !isTempo || !dex || !tokenInAddress || isApprovePending || approveReceipt.isLoading}
+              disabled={!isConnected || !isTempo || !dex || !tokenInAddress || quoteUnavailable || isApprovePending || approveReceipt.isLoading}
               variant="outline"
               className="w-full"
             >

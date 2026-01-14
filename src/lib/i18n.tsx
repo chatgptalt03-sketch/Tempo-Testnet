@@ -361,6 +361,7 @@ const EN: Dict = {
   'issuance.rewards.optedInSupply': 'Opted-in supply',
   'issuance.rewards.globalRewardPerToken': 'Global reward per token',
   'issuance.rewards.myRewards': 'My rewards',
+  'issuance.rewards.myRewardsHint': 'Estimated claimable rewards (may update after interactions).',
   'issuance.rewards.optInRecipientTitle': 'Opt-in / recipient',
   'issuance.rewards.optInRecipientHelp': 'Set where rewards should be sent. Defaults to your connected wallet.',
   'issuance.rewards.recipientOptional': 'Recipient (optional)',
@@ -373,6 +374,14 @@ const EN: Dict = {
   'issuance.rewards.claim': 'Claim rewards',
   'issuance.rewards.distributeStatus': 'Distribute status: {status}',
   'issuance.rewards.claimStatus': 'Claim status: {status}',
+  'issuance.rewards.notAuthorized': 'Your wallet does not have issuer/admin privileges for this token.',
+  'issuance.rewards.pausedWarning': 'Token is paused.',
+  'issuance.rewards.yourBalance': 'Your balance: {amount} {symbol}',
+  'issuance.rewards.noOptedInSupplyHint': 'No opted-in supply yet. At least one holder must opt-in (set a reward recipient) before rewards can be distributed.',
+  'issuance.rewards.noOptedInSupplyError': 'Cannot distribute: opted-in supply is 0. Ask holders to opt-in (set reward recipient) first.',
+  'issuance.rewards.viewTxOnExplorer': 'View transaction on Explorer',
+  'issuance.rewards.viewDistributeOnExplorer': 'View distribute tx on Explorer',
+  'issuance.rewards.viewClaimOnExplorer': 'View claim tx on Explorer',
 
   // Issuance: Manage
   'issuance.manage.enterAddress': 'Enter a Stablecoin address at the top to manage it.',
@@ -487,6 +496,7 @@ const EN: Dict = {
   'page.dex.switchNetworkToSwap': 'Switch your wallet network to {network} to swap.',
   'page.dex.from': 'From',
   'page.dex.to': 'To',
+  'page.dex.balanceLabel': 'Balance',
   'page.dex.amountSpend': 'Amount you spend',
   'page.dex.amountReceiveAdvanced': 'Amount you receive (advanced)',
   'page.dex.advancedOptions': 'Advanced options',
@@ -505,6 +515,10 @@ const EN: Dict = {
   'page.dex.enterValidAmountIn': 'Enter a valid amount in (must fit into uint128).',
   'page.dex.enterValidAmountOut': 'Enter a valid amount out (must fit into uint128).',
   'page.dex.enterValidSlippageBps': 'Enter a valid slippage bps (0 - 10000).',
+  'page.dex.quoteUnavailable': 'No quote available for this pair.',
+  'page.dex.quoteUnavailableHint': 'This usually means the pair has no liquidity/orders yet (or the token is not supported by the DEX).',
+
+  'page.common.token': 'Token',
 
   // Pages: Liquidity
   'page.liquidity.title': 'Provide Liquidity',
@@ -916,6 +930,7 @@ const TR: Dict = {
   'issuance.rewards.optedInSupply': 'Opt-in arz',
   'issuance.rewards.globalRewardPerToken': 'Token başı global ödül',
   'issuance.rewards.myRewards': 'Ödüllerim',
+  'issuance.rewards.myRewardsHint': 'Tahmini talep edilebilir ödül (bazı durumlarda etkileşim sonrası güncellenir).',
   'issuance.rewards.optInRecipientTitle': 'Opt-in / alıcı',
   'issuance.rewards.optInRecipientHelp': 'Ödüllerin nereye gideceğini ayarla. Varsayılan: bağlı cüzdanın.',
   'issuance.rewards.recipientOptional': 'Alıcı (isteğe bağlı)',
@@ -928,6 +943,14 @@ const TR: Dict = {
   'issuance.rewards.claim': 'Ödülleri talep et',
   'issuance.rewards.distributeStatus': 'Dağıtım durumu: {status}',
   'issuance.rewards.claimStatus': 'Talep durumu: {status}',
+  'issuance.rewards.notAuthorized': 'Bu token için issuer/admin yetkin yok.',
+  'issuance.rewards.pausedWarning': 'Token duraklatılmış.',
+  'issuance.rewards.yourBalance': 'Bakiyen: {amount} {symbol}',
+  'issuance.rewards.noOptedInSupplyHint': 'Henüz opt-in arz yok. Ödül dağıtımı için en az bir holder opt-in olmalı (ödül alıcısı ayarlamalı).',
+  'issuance.rewards.noOptedInSupplyError': 'Dağıtılamıyor: opt-in arz 0. Önce holderların opt-in olmasını (ödül alıcısı ayarlamasını) sağlayın.',
+  'issuance.rewards.viewTxOnExplorer': 'İşlemi Explorer’da görüntüle',
+  'issuance.rewards.viewDistributeOnExplorer': 'Dağıtım işlemini Explorer’da görüntüle',
+  'issuance.rewards.viewClaimOnExplorer': 'Talep işlemini Explorer’da görüntüle',
 
   // Issuance: Manage
   'issuance.manage.enterAddress': 'Yönetmek için yukarıdan bir Stablecoin adresi gir.',
@@ -1042,6 +1065,7 @@ const TR: Dict = {
   'page.dex.switchNetworkToSwap': '{network} ağına geçerek takas yap.',
   'page.dex.from': 'Kimden',
   'page.dex.to': 'Kime',
+  'page.dex.balanceLabel': 'Bakiye',
   'page.dex.amountSpend': 'Harcadığın tutar',
   'page.dex.amountReceiveAdvanced': 'Alacağın tutar (gelişmiş)',
   'page.dex.advancedOptions': 'Gelişmiş seçenekler',
@@ -1060,6 +1084,10 @@ const TR: Dict = {
   'page.dex.enterValidAmountIn': 'Geçerli bir giriş tutarı gir (uint128 içine sığmalı).',
   'page.dex.enterValidAmountOut': 'Geçerli bir çıkış tutarı gir (uint128 içine sığmalı).',
   'page.dex.enterValidSlippageBps': 'Geçerli bir slippage bps gir (0 - 10000).',
+  'page.dex.quoteUnavailable': 'Bu çift için fiyat teklifi alınamıyor.',
+  'page.dex.quoteUnavailableHint': 'Genelde bu, çiftte henüz likidite/sipariş olmadığı (veya tokenın DEX tarafından desteklenmediği) anlamına gelir.',
+
+  'page.common.token': 'Token',
 
   // Pages: Liquidity
   'page.liquidity.title': 'Likidite Sağla',
