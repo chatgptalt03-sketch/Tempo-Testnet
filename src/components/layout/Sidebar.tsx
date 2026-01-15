@@ -58,13 +58,13 @@ export function Sidebar({ isOpen = true }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 border-r border-gray-200 bg-white p-4 shadow-xl',
+          'fixed left-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-64 flex-col border-r border-gray-200 bg-white p-4 shadow-xl',
           'transition-transform duration-300 dark:border-gray-800 dark:bg-gray-900',
           isOpen ? 'translate-x-0' : '-translate-x-full',
           'lg:translate-x-0 lg:shadow-none',
         )}
       >
-        <nav className="flex flex-col gap-2">
+        <nav className="flex flex-1 flex-col gap-2 overflow-y-auto pr-1">
           {navItems.map((item) => (
             <div key={item.path} className="flex flex-col gap-2">
               <NavLink
@@ -89,11 +89,13 @@ export function Sidebar({ isOpen = true }: SidebarProps) {
                   ) : null}
                 </div>
               </NavLink>
-
-              {item.path === '/contracts' ? <SocialLinks /> : null}
             </div>
           ))}
         </nav>
+
+        <div className="mt-4">
+          <SocialLinks />
+        </div>
       </aside>
     </>
   );
