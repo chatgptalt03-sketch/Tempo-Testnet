@@ -169,7 +169,7 @@ export function TokenManagement() {
     if (grantReceipt.isSuccess || revokeReceipt.isSuccess) {
       void roleHas.refetch();
     }
-  }, [grantReceipt.isSuccess, revokeReceipt.isSuccess, roleHas.refetch]);
+  }, [grantReceipt.isSuccess, revokeReceipt.isSuccess, roleHas]);
 
   if (!tokenAddress) {
     return (
