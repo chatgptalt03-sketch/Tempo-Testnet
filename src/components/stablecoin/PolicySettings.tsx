@@ -106,14 +106,40 @@ export function PolicySettings() {
   const createPolicy = async () => {
     if (!registry) return;
     if (!effectiveOwner) return;
+    
+    // Parse the inputs from the text boxes
     const wl = parseAddressList(whitelist);
     const bl = parseAddressList(blacklist);
-    const timestamp = BigInt(Math.floor(Date.now() / 1000));
+
+    // LOGIC: Check which box has addresses
+    // If Whitelist box has data, create a Whitelist Policy (Type 0)
+    if (wl.length > 0) {
+        writeCreate({
+          address: registry,
+          abi: ABIS.TIP403Registry,
+          functionName: 'createPolicyWithAccounts',
+          args: [effectiveOwner, 0, wl], // 0 = WHITELIST
+        });
+        return;
+    }
+
+    // If Blacklist box has data, create a Blacklist Policy (Type 1)
+    if (bl.length > 0) {
+        writeCreate({
+          address: registry,
+          abi: ABIS.TIP403Registry,
+          functionName: 'createPolicyWithAccounts',
+          args: [effectiveOwner, 1, bl], // 1 = BLACKLIST
+        });
+        return;
+    }
+
+    // If BOTH are empty, just create an empty Blacklist policy container
     writeCreate({
       address: registry,
       abi: ABIS.TIP403Registry,
       functionName: 'createPolicy',
-      args: [effectiveOwner, wl, bl, timestamp],
+      args: [effectiveOwner, 1], // 1 = BLACKLIST
     });
   };
 
